@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id              Int          @id @default(autoincrement())
+  transactionDate DateTime
+  postDate        DateTime
+  description     String       @db.VarChar(255)
+  amount          Float
+  accountID       Int?
+  account         Account?     @relation(fields: [accountID], references: [id])
+  merchantID      Int?
+  merchant        Merchant?    @relation(fields: [merchantID], references: [id])
+  categories      Category[]
+  attachments     Attachment[]
+  sourceFile      String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Attachment {
+  id            Int         @id @default(autoincrement())
+  name          String      @db.VarChar(255)
+  location      String      @db.VarChar(255)
+  transactionID Int
+  transaction   Transaction @relation(fields: [transactionID], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum AccountType {
+  BANK
+  CHECKING
+  SAVINGS
+  DEBITCARD
+  CREDITCARD
+  LOAN
+  MORTGAGE
+  CARPAYMENT
+  INVESTMENT
+  STOCK
+  REALESTATE
+}
+
+model Account {
+  id           Int           @id @default(autoincrement())
+  name         String        @db.VarChar(255)
+  type         AccountType   @default(CHECKING)
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Merchant {
+  id           Int           @id @default(autoincrement())
+  name         String        @db.VarChar(255)
+  city         String        @db.VarChar(255)
+  state        String        @db.VarChar(255)
+  country      String        @db.VarChar(255)
+  transactions Transaction[]
+  categories   Category[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum CategoryType {
+  CATEGORY
+  USER
+  EVENT
+  TRIP
+}
+
+model Category {
+  id               Int           @id @default(autoincrement())
+  type             CategoryType  @default(CATEGORY)
+  name             String        @db.VarChar(255)
+  fromDate         DateTime?
+  toDate           DateTime?
+  parentCategories Category[]    @relation("RelatedCategories")
+  subCategories    Category[]    @relation("RelatedCategories")
+  transactions     Transaction[]
+  merchants        Merchant[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
