@@ -2,16 +2,21 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Transaction {
   id              Int          @id @default(autoincrement())
   transactionDate DateTime
   postDate        DateTime
-  description     String       @db.VarChar(255)
+  description     String
   amount          Float
   accountID       Int?
   account         Account?     @relation(fields: [accountID], references: [id])
@@ -26,32 +31,32 @@ model Transaction {
 
 model Attachment {
   id            Int         @id @default(autoincrement())
-  name          String      @db.VarChar(255)
-  location      String      @db.VarChar(255)
+  name          String
+  location      String
   transactionID Int
   transaction   Transaction @relation(fields: [transactionID], references: [id])
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }
 
-enum AccountType {
-  BANK
-  CHECKING
-  SAVINGS
-  DEBITCARD
-  CREDITCARD
-  LOAN
-  MORTGAGE
-  CARPAYMENT
-  INVESTMENT
-  STOCK
-  REALESTATE
-}
+// enum AccountType {
+//   BANK
+//   CHECKING
+//   SAVINGS
+//   DEBITCARD
+//   CREDITCARD
+//   LOAN
+//   MORTGAGE
+//   CARPAYMENT
+//   INVESTMENT
+//   STOCK
+//   REALESTATE
+// }
 
 model Account {
   id           Int           @id @default(autoincrement())
-  name         String        @db.VarChar(255)
-  type         AccountType   @default(CHECKING)
+  name         String
+  type         String        @default("CHECKING") // AccountType
   transactions Transaction[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -59,27 +64,27 @@ model Account {
 
 model Merchant {
   id           Int           @id @default(autoincrement())
-  name         String        @db.VarChar(255)
-  city         String        @db.VarChar(255)
-  state        String        @db.VarChar(255)
-  country      String        @db.VarChar(255)
+  name         String
+  city         String
+  state        String
+  country      String
   transactions Transaction[]
   categories   Category[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
 
-enum CategoryType {
-  CATEGORY
-  USER
-  EVENT
-  TRIP
-}
+// enum CategoryType {
+//   CATEGORY
+//   USER
+//   EVENT
+//   TRIP
+// }
 
 model Category {
   id               Int           @id @default(autoincrement())
-  type             CategoryType  @default(CATEGORY)
-  name             String        @db.VarChar(255)
+  type             String        @default("CATEGORY") // CategoryType
+  name             String
   fromDate         DateTime?
   toDate           DateTime?
   parentCategories Category[]    @relation("RelatedCategories")
